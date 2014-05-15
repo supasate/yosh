@@ -89,7 +89,7 @@ def init():
     register_command("cd", cd)
     register_command("exit", exit)
     register_command("getenv", getenv)
-
+    register_command("export", export)
 
 
 def main():
