@@ -13,8 +13,11 @@ built_in_cmds = {}
 
 
 def tokenize(string):
-    return shlex.split(string)
-
+    token=shlex.split(string)
+    for i, el in enumerate(token):
+        if el.startswith('$'):
+           token[i] = os.getenv(token[i][1:])           
+    return token
 def execute(cmd_tokens):
     # Extract command name and arguments from tokens
     cmd_name = cmd_tokens[0]
