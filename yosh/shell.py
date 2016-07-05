@@ -1,3 +1,4 @@
+import os
 import sys
 import shlex
 
@@ -6,6 +7,13 @@ SHELL_STATUS_STOP = 0
 
 def tokenize(string):
     return shlex.split(string)
+
+def execute(cmd_tokens):
+    # Execute command
+    os.execvp(cmd_tokens[0], cmd_tokens)
+
+    # Return status indicating to wait for next command in shell_loop
+    return SHELL_STATUS_RUN
 
 def shell_loop():
     status = SHELL_STATUS_RUN
