@@ -12,3 +12,9 @@ def shell_loop():
 
         # Read command input
         cmd = sys.stdin.readline()
+
+        # Tokenize the command input
+        cmd_tokens = tokenize(cmd)
+
+        # Execute the command and retrieve new status
+        status = execute(cmd_tokens)
