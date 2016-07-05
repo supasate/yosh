@@ -18,3 +18,9 @@ def shell_loop():
 
         # Execute the command and retrieve new status
         status = execute(cmd_tokens)
+
+def main():
+    shell_loop()
+
+if __name__ == "__main__":
+    main()
