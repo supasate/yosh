@@ -1,7 +1,11 @@
 import sys
+import shlex
 
 SHELL_STATUS_RUN = 1
 SHELL_STATUS_STOP = 0
+
+def tokenize(string):
+    return shlex.split(string)
 
 def shell_loop():
     status = SHELL_STATUS_RUN
