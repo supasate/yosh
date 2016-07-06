@@ -1,14 +1,24 @@
 import os
 import sys
 import shlex
+from yosh.constants import *
+from yosh.builtins import *
 
-SHELL_STATUS_RUN = 1
-SHELL_STATUS_STOP = 0
+# Hash map to store built-in function name and reference as key and value
+built_in_cmds = {}
 
 def tokenize(string):
     return shlex.split(string)
 
 def execute(cmd_tokens):
+    # Extract command name and arguments from tokens
+    cmd_name = cmd_tokens[0]
+    cmd_args = cmd_tokens[1: ]
+
+    # If the command is a built-in command, invoke its function with arguments
+    if cmd_name in built_in_cmds:
+        return built_in_cmds[cmd_name](cmd_args)
+
     # Fork a child shell process
     # If the current process is a child process, pid = 0
     # If the current process is a parent process, pid = process id of its child process
@@ -47,7 +57,17 @@ def shell_loop():
         # Execute the command and retrieve new status
         status = execute(cmd_tokens)
 
+# Register a built-in function to built-in command hash map
+def register_command(name, func):
+    built_in_cmds[name] = func
+
+# Register all built-in commands here
+def init():
+    register_command("cd", cd)
+
 def main():
+    # Init shell before starting the main loop
+    init()
     shell_loop()
 
 if __name__ == "__main__":
