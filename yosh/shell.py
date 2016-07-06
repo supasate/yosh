@@ -43,6 +43,7 @@ def execute(cmd_tokens):
 
 def shell_loop():
     status = SHELL_STATUS_RUN
+
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
         sys.stdout.write('> ')
