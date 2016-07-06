@@ -64,6 +64,7 @@ def register_command(name, func):
 # Register all built-in commands here
 def init():
     register_command("cd", cd)
+    register_command("exit", exit)
 
 def main():
     # Init shell before starting the main loop
