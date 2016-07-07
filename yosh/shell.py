@@ -7,8 +7,10 @@ from yosh.builtins import *
 # Hash map to store built-in function name and reference as key and value
 built_in_cmds = {}
 
+
 def tokenize(string):
     return shlex.split(string)
+
 
 def execute(cmd_tokens):
     # Extract command name and arguments from tokens
@@ -20,8 +22,9 @@ def execute(cmd_tokens):
         return built_in_cmds[cmd_name](cmd_args)
 
     # Fork a child shell process
-    # If the current process is a child process, pid = 0
-    # If the current process is a parent process, pid = process id of its child process
+    # If the current process is a child process, its `pid` is set to `0`
+    # else the current process is a parent process and the value of `pid`
+    # is the process id of its child process.
     pid = os.fork()
 
     if pid == 0:
@@ -34,12 +37,14 @@ def execute(cmd_tokens):
             # Wait response status from its child process (identified with pid)
             wpid, status = os.waitpid(pid, 0)
 
-            # Finish waiting if its child process exits normally or is terminated by a signal
+            # Finish waiting if its child process exits normally or is
+            # terminated by a signal
             if os.WIFEXITED(status) or os.WIFSIGNALED(status):
                 break
 
     # Return status indicating to wait for next command in shell_loop
     return SHELL_STATUS_RUN
+
 
 def shell_loop():
     status = SHELL_STATUS_RUN
@@ -58,14 +63,17 @@ def shell_loop():
         # Execute the command and retrieve new status
         status = execute(cmd_tokens)
 
+
 # Register a built-in function to built-in command hash map
 def register_command(name, func):
     built_in_cmds[name] = func
+
 
 # Register all built-in commands here
 def init():
     register_command("cd", cd)
     register_command("exit", exit)
+
 
 def main():
     # Init shell before starting the main loop
