@@ -15,7 +15,7 @@ def tokenize(string):
 def execute(cmd_tokens):
     # Extract command name and arguments from tokens
     cmd_name = cmd_tokens[0]
-    cmd_args = cmd_tokens[1: ]
+    cmd_args = cmd_tokens[1:]
 
     # If the command is a built-in command, invoke its function with arguments
     if cmd_name in built_in_cmds:
