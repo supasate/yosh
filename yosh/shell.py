@@ -1,6 +1,8 @@
 import os
 import sys
 import shlex
+import getpass
+import socket
 from yosh.constants import *
 from yosh.builtins import *
 
@@ -30,7 +32,11 @@ def execute(cmd_tokens):
     if pid == 0:
         # Child process
         # Replace the child shell process with the program called with exec
-        os.execvp(cmd_tokens[0], cmd_tokens)
+        #Modifed by Ted,make a beautiful error output
+        try:
+           os.execvp(cmd_tokens[0], cmd_tokens)
+        except OSError,e:
+           print e
     elif pid > 0:
         # Parent process
         while True:
@@ -51,17 +57,27 @@ def shell_loop():
 
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
-        sys.stdout.write('> ')
+        # Modifed by Ted,make it more looks like bash command prompt
+        if os.getcwd() == os.getenv('HOME'):
+           dir = "~"
+        else:
+           dir = os.getcwd()
+        if os.geteuid() != 0:
+           sys.stdout.write('['+getpass.getuser()+'@'+socket.gethostname()+' '+dir+']$ ')
+        else:
+           sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
         sys.stdout.flush()
 
         # Read command input
         cmd = sys.stdin.readline()
-
+        
         # Tokenize the command input
         cmd_tokens = tokenize(cmd)
 
-        # Execute the command and retrieve new status
-        status = execute(cmd_tokens)
+        # Fix a bug with inputing nothing
+        if cmd_tokens: 
+           # Execute the command and retrieve new status
+           status = execute(cmd_tokens)
 
 
 # Register a built-in function to built-in command hash map
