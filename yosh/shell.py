@@ -3,6 +3,7 @@ import sys
 import shlex
 import getpass
 import socket
+import signal
 from yosh.constants import *
 from yosh.builtins import *
 
@@ -12,7 +13,6 @@ built_in_cmds = {}
 
 def tokenize(string):
     return shlex.split(string)
-
 
 def execute(cmd_tokens):
     # Extract command name and arguments from tokens
@@ -73,19 +73,26 @@ def shell_loop():
            sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
         sys.stdout.flush()
 
+        # Modifed by Ted,do not receive Ctrl+Z signal
+        signal.signal(signal.SIGTSTP, signal.SIG_IGN)
+        #The bugs with receiving wrong command had fixed by Ted
         try:
            # Read command input
            cmd = sys.stdin.readline()
         except KeyboardInterrupt:
-           print ""
-        
-        # Tokenize the command input
-        cmd_tokens = tokenize(cmd)
-
+           print "\nRead wrong command input"
+        try:
+           # Tokenize the command input
+           cmd_tokens = tokenize(cmd)
+        except:
+           print "Error when receiving the command"
         # Fix a bug with inputing nothing
-        if cmd_tokens: 
-           # Execute the command and retrieve new status
-           status = execute(cmd_tokens)
+        try:
+          if cmd_tokens: 
+             # Execute the command and retrieve new status
+             status = execute(cmd_tokens)
+        except:
+          print "Error when running the command"
 
 
 # Register a built-in function to built-in command hash map
