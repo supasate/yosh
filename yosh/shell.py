@@ -37,11 +37,16 @@ def execute(cmd_tokens):
            os.execvp(cmd_tokens[0], cmd_tokens)
         except OSError,e:
            print e
+        
     elif pid > 0:
         # Parent process
         while True:
             # Wait response status from its child process (identified with pid)
-            wpid, status = os.waitpid(pid, 0)
+            try:
+               wpid, status = os.waitpid(pid, 0)
+            # Fix a bug with ctrl+c,modifed by Ted
+            except KeyboardInterrupt:
+               break
 
             # Finish waiting if its child process exits normally or is
             # terminated by a signal
@@ -68,8 +73,11 @@ def shell_loop():
            sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
         sys.stdout.flush()
 
-        # Read command input
-        cmd = sys.stdin.readline()
+        try:
+           # Read command input
+           cmd = sys.stdin.readline()
+        except KeyboardInterrupt:
+           print ""
         
         # Tokenize the command input
         cmd_tokens = tokenize(cmd)
