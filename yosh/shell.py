@@ -4,6 +4,7 @@ import shlex
 import getpass
 import socket
 import signal
+import subprocess
 from yosh.constants import *
 from yosh.builtins import *
 
@@ -22,36 +23,10 @@ def execute(cmd_tokens):
     # If the command is a built-in command, invoke its function with arguments
     if cmd_name in built_in_cmds:
         return built_in_cmds[cmd_name](cmd_args)
-
-    # Fork a child shell process
-    # If the current process is a child process, its `pid` is set to `0`
-    # else the current process is a parent process and the value of `pid`
-    # is the process id of its child process.
-    pid = os.fork()
-
-    if pid == 0:
-        # Child process
-        # Replace the child shell process with the program called with exec
-        #Modifed by Ted,make a beautiful error output
-        try:
-           os.execvp(cmd_tokens[0], cmd_tokens)
-        except OSError,e:
-           print e
-        
-    elif pid > 0:
-        # Parent process
-        while True:
-            # Wait response status from its child process (identified with pid)
-            try:
-               wpid, status = os.waitpid(pid, 0)
-            # Fix a bug with ctrl+c,modifed by Ted
-            except KeyboardInterrupt:
-               break
-
-            # Finish waiting if its child process exits normally or is
-            # terminated by a signal
-            if os.WIFEXITED(status) or os.WIFSIGNALED(status):
-                break
+    # Written in beautiful sentences to run the command,modifed by Ted
+    sh = subprocess.Popen(cmd_tokens)
+    # Parent process wait for child process
+    sh.communicate()
 
     # Return status indicating to wait for next command in shell_loop
     return SHELL_STATUS_RUN
@@ -104,6 +79,8 @@ def register_command(name, func):
 def init():
     register_command("cd", cd)
     register_command("exit", exit)
+    register_command("getenv", getenv)
+
 
 
 def main():
