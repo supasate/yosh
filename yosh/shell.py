@@ -85,8 +85,9 @@ def shell_loop():
         try:
             # Read command input
             cmd = sys.stdin.readline()
-        except KeyboardInterrupt, e:
-            print(e)
+        except KeyboardInterrupt:
+            _, err, _ = sys.exc_info()
+            print(err)
 
         try:
             # Tokenize the command input
@@ -97,8 +98,9 @@ def shell_loop():
         try:
             # Execute the command and retrieve new status
             status = execute(cmd_tokens)
-        except OSError, e:
-                print(e)
+        except OSError:
+            _, err, _ = sys.exc_info()
+            print(err)
 
 
 # Register a built-in function to built-in command hash map
