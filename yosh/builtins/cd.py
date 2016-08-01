@@ -3,5 +3,8 @@ from yosh.constants import *
 
 
 def cd(args):
-    os.chdir(args[0])
+    if args:
+       os.chdir(args[0])
+    else:
+       os.chdir(os.getenv('HOME'))
     return SHELL_STATUS_RUN
