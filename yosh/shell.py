@@ -61,7 +61,7 @@ def shell_loop():
             sys.stdout.write(
                              '[' + getpass.getuser() + '@' +
                              socket.gethostname().split('.')[0] +
-                             ' '+dir+']$ ')
+                             ' ' + dir + ']$ ')
         else:
             sys.stdout.write(
                             '[root@' + socket.gethostname().split('.')[0] +
