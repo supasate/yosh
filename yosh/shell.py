@@ -60,9 +60,12 @@ def shell_loop():
         if os.geteuid() != 0:
             sys.stdout.write(
                              '[' + getpass.getuser() + '@' +
-                             socket.gethostname().split('.')[0] + ' '+dir+']$ ')
+                             socket.gethostname().split('.')[0] +
+                             ' '+dir+']$ ')
         else:
-            sys.stdout.write('[root@'+socket.gethostname().split('.')[0]+' '+dir+']# ')
+            sys.stdout.write(
+                            '[root@' + socket.gethostname().split('.')[0] +
+                            ' ' + dir + ']# ')
         sys.stdout.flush()
 
         # Do not receive Ctrl signal
