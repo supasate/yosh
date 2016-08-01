@@ -35,14 +35,16 @@ def execute(cmd_tokens):
         # invoke its function with arguments
         if cmd_name in built_in_cmds:
             return built_in_cmds[cmd_name](cmd_args)
+
         # Wait for a kill signal
         signal.signal(signal.SIGINT, handler_kill)
         # Spawn a child process
         if platform.system() != "Windows":
             # Unix support
-            sh = subprocess.Popen(cmd_tokens[0])
-            # Parent process wait for child process
-            sh.communicate()
+            p = subprocess.Popen(cmd_tokens)
+            # Parent process read data from child process
+            # and wait for child process to exit
+            p.communicate()
         else:
             # Windows support
             command = ""
