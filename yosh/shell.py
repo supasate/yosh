@@ -5,6 +5,7 @@ import getpass
 import socket
 import signal
 import subprocess
+import platform
 from yosh.constants import *
 from yosh.builtins import *
 
@@ -57,15 +58,19 @@ def shell_loop():
             dir = ""
         else:
             dir = os.getcwd().split('/')[-1]
-        if os.geteuid() != 0:
-            sys.stdout.write(
-                             '[' + getpass.getuser() + '@' +
-                             socket.gethostname().split('.')[0] +
-                             ' ' + dir + ']$ ')
+        if platform.system() != "Windows":
+            if os.geteuid() != 0:
+                sys.stdout.write(
+                                '[' + getpass.getuser() + '@' +
+                                socket.gethostname().split('.')[0] +
+                                ' ' + dir + ']$ ')
+            else:
+                sys.stdout.write(
+                                '[root@' + socket.gethostname().split('.')[0] +
+                                ' ' + dir + ']# ')
         else:
-            sys.stdout.write(
-                            '[root@' + socket.gethostname().split('.')[0] +
-                            ' ' + dir + ']# ')
+            # Support for Windows
+            sys.stdout.write(dir + ">")
         sys.stdout.flush()
 
         # Do not receive Ctrl signal
