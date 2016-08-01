@@ -62,8 +62,6 @@ def shell_loop():
         if platform.system() != "Windows":
             if os.getcwd() == os.getenv('HOME'):
                 dir = "~"
-            elif os.getcwd() == os.getenv('HOME') + "/yosh":
-                dir = ""
             else:
                 dir = os.getcwd().split('/')[-1]
             if os.geteuid() != 0:
