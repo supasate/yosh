@@ -34,7 +34,6 @@ def execute(cmd_tokens):
         # invoke its function with arguments
         if cmd_name in built_in_cmds:
             return built_in_cmds[cmd_name](cmd_args)
-        global sh
         # Wait for a kill signal
         signal.signal(signal.SIGINT, handler_kill)
         # Written in beautiful sentences to run the command
@@ -54,14 +53,16 @@ def shell_loop():
         # Make it more looks like bash command prompt
         if os.getcwd() == os.getenv('HOME'):
             dir = "~"
+        elif os.getcwd() == os.getenv('HOME') + "/yosh":
+            dir = ""
         else:
-            dir = os.getcwd()
+            dir = os.getcwd().split('/')[-1]
         if os.geteuid() != 0:
             sys.stdout.write(
                              '[' + getpass.getuser() + '@' +
-                             socket.gethostname() + ' '+dir+']$ ')
+                             socket.gethostname().split('.')[0] + ' '+dir+']$ ')
         else:
-            sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
+            sys.stdout.write('[root@'+socket.gethostname().split('.')[0]+' '+dir+']# ')
         sys.stdout.flush()
 
         # Do not receive Ctrl signal
