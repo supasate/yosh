@@ -5,6 +5,9 @@
 * Use subprocess module to fork and exec (Yuliang Tan)
 * Get an environment variable if a token begins with a dollar sign (Yuliang Tan)
 * Support Windows (Yuliang Tan)
+* Fix command arguments are not passed to child process (Supasate Choochaisri)
+* Add travis build to check PEP8 (Supasate Choochaisri)
+* Add build badge (Supasate Choochaisri)
 
 2016-07-08, Version 0.1.0
 =========================
