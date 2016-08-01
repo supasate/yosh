@@ -39,11 +39,12 @@ def execute(cmd_tokens):
         signal.signal(signal.SIGINT, handler_kill)
         # Spawn a child process
         if platform.system() != "Windows":
+            # Unix support
             sh = subprocess.Popen(cmd_tokens[0])
             # Parent process wait for child process
             sh.communicate()
         else:
-            # Support for Windows,written in bad sentences.
+            # Windows support
             command = ""
             for i in cmd_tokens:
                 command = command + " " + i
@@ -57,7 +58,6 @@ def shell_loop():
 
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
-        # Make it more looks like bash command prompt
         if platform.system() != "Windows":
             if os.getcwd() == os.getenv('HOME'):
                 dir = "~"
@@ -65,15 +65,15 @@ def shell_loop():
                 dir = os.getcwd().split('/')[-1]
             if os.geteuid() != 0:
                 sys.stdout.write(
-                                '[' + getpass.getuser() + '@' +
-                                socket.gethostname().split('.')[0] +
-                                ' ' + dir + ']$ ')
+                    '[' + getpass.getuser() + '@' +
+                    socket.gethostname().split('.')[0] +
+                    ' ' + dir + ']$ ')
             else:
                 sys.stdout.write(
-                                '[root@' + socket.gethostname().split('.')[0] +
-                                ' ' + dir + ']# ')
+                    '[root@' + socket.gethostname().split('.')[0] +
+                    ' ' + dir + ']# ')
         else:
-            # Support for Windows
+            # Windows support
             sys.stdout.write(os.getcwd() + "> ")
         sys.stdout.flush()
 
@@ -81,23 +81,24 @@ def shell_loop():
         if platform.system() != "Windows":
             signal.signal(signal.SIGTSTP, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        # The bugs with receiving wrong command
+
         try:
             # Read command input
             cmd = sys.stdin.readline()
         except KeyboardInterrupt, e:
-            print (e)
+            print(e)
+
         try:
             # Tokenize the command input
             cmd_tokens = tokenize(cmd)
         except:
-            print ("Error when receiving the command")
+            print("Error when receiving the command")
         # Fix a bug with inputing nothing
         try:
             # Execute the command and retrieve new status
             status = execute(cmd_tokens)
         except OSError, e:
-                print (e)
+                print(e)
 
 
 # Register a built-in function to built-in command hash map
