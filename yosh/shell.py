@@ -13,34 +13,37 @@ built_in_cmds = {}
 
 
 def tokenize(string):
-    token=shlex.split(string)
+    token = shlex.split(string)
     for i, el in enumerate(token):
         if el.startswith('$'):
-           token[i] = os.getenv(token[i][1:])           
+            token[i] = os.getenv(token[i][1:])
     return token
+
 
 def handler_kill(signum, frame):
     raise OSError("Killed!")
 
-def execute(cmd_tokens):
-  if cmd_tokens:
-    # Extract command name and arguments from tokens
-    cmd_name = cmd_tokens[0]
-    cmd_args = cmd_tokens[1:]
 
-    # If the command is a built-in command, invoke its function with arguments
-    if cmd_name in built_in_cmds:
-        return built_in_cmds[cmd_name](cmd_args)
-    global sh
-    # Wait for a kill signal
-    signal.signal(signal.SIGINT,handler_kill)
-    # Written in beautiful sentences to run the command
-    # Spawn a child process
-    sh = subprocess.Popen(cmd_tokens)
-    # Parent process wait for child process
-    sh.communicate()
-  # Return status indicating to wait for next command in shell_loop
-  return SHELL_STATUS_RUN
+def execute(cmd_tokens):
+    if cmd_tokens:
+        # Extract command name and arguments from tokens
+        cmd_name = cmd_tokens[0]
+        cmd_args = cmd_tokens[1:]
+
+        # If the command is a built-in command,
+        # invoke its function with arguments
+        if cmd_name in built_in_cmds:
+            return built_in_cmds[cmd_name](cmd_args)
+        global sh
+        # Wait for a kill signal
+        signal.signal(signal.SIGINT, handler_kill)
+        # Written in beautiful sentences to run the command
+        # Spawn a child process
+        sh = subprocess.Popen(cmd_tokens)
+        # Parent process wait for child process
+        sh.communicate()
+    # Return status indicating to wait for next command in shell_loop
+    return SHELL_STATUS_RUN
 
 
 def shell_loop():
@@ -50,35 +53,37 @@ def shell_loop():
         # Display a command prompt
         # Make it more looks like bash command prompt
         if os.getcwd() == os.getenv('HOME'):
-           dir = "~"
+            dir = "~"
         else:
-           dir = os.getcwd()
+            dir = os.getcwd()
         if os.geteuid() != 0:
-           sys.stdout.write('['+getpass.getuser()+'@'+socket.gethostname()+' '+dir+']$ ')
+            sys.stdout.write(
+                             '[' + getpass.getuser() + '@' +
+                             socket.gethostname() + ' '+dir+']$ ')
         else:
-           sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
+            sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
         sys.stdout.flush()
 
         # Do not receive Ctrl signal
         signal.signal(signal.SIGTSTP, signal.SIG_IGN)
-        signal.signal(signal.SIGINT,signal.SIG_IGN)  
-        #The bugs with receiving wrong command had fixed by Ted
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        # The bugs with receiving wrong command
         try:
-           # Read command input
-           cmd = sys.stdin.readline()
-        except KeyboardInterrupt,e:
-           print (e)
+            # Read command input
+            cmd = sys.stdin.readline()
+        except KeyboardInterrupt, e:
+            print (e)
         try:
-           # Tokenize the command input
-           cmd_tokens = tokenize(cmd)
+            # Tokenize the command input
+            cmd_tokens = tokenize(cmd)
         except:
-           print ("Error when receiving the command")
+            print ("Error when receiving the command")
         # Fix a bug with inputing nothing
         try:
-           # Execute the command and retrieve new status
-           status = execute(cmd_tokens)
-        except OSError,e:
-              print (e)
+            # Execute the command and retrieve new status
+            status = execute(cmd_tokens)
+        except OSError, e:
+                print (e)
 
 
 # Register a built-in function to built-in command hash map
