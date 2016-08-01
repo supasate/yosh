@@ -39,9 +39,16 @@ def execute(cmd_tokens):
         signal.signal(signal.SIGINT, handler_kill)
         # Written in beautiful sentences to run the command
         # Spawn a child process
-        sh = subprocess.Popen(cmd_tokens)
-        # Parent process wait for child process
-        sh.communicate()
+        if platform.system() != "Windows":
+            sh = subprocess.Popen(cmd_tokens[0])
+            # Parent process wait for child process
+            sh.communicate()
+        else:
+            # Support for Windows,written in bad sentences.
+            command = ""
+            for i in cmd_tokens:
+                command = command + " " + i
+            os.system(command)
     # Return status indicating to wait for next command in shell_loop
     return SHELL_STATUS_RUN
 
@@ -52,13 +59,13 @@ def shell_loop():
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
         # Make it more looks like bash command prompt
-        if os.getcwd() == os.getenv('HOME'):
-            dir = "~"
-        elif os.getcwd() == os.getenv('HOME') + "/yosh":
-            dir = ""
-        else:
-            dir = os.getcwd().split('/')[-1]
         if platform.system() != "Windows":
+            if os.getcwd() == os.getenv('HOME'):
+                dir = "~"
+            elif os.getcwd() == os.getenv('HOME') + "/yosh":
+                dir = ""
+            else:
+                dir = os.getcwd().split('/')[-1]
             if os.geteuid() != 0:
                 sys.stdout.write(
                                 '[' + getpass.getuser() + '@' +
@@ -70,11 +77,12 @@ def shell_loop():
                                 ' ' + dir + ']# ')
         else:
             # Support for Windows
-            sys.stdout.write(dir + ">")
+            sys.stdout.write(os.getcwd() + "> ")
         sys.stdout.flush()
 
         # Do not receive Ctrl signal
-        signal.signal(signal.SIGTSTP, signal.SIG_IGN)
+        if platform.system() != "Windows":
+            signal.signal(signal.SIGTSTP, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         # The bugs with receiving wrong command
         try:
