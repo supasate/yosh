@@ -37,7 +37,6 @@ def execute(cmd_tokens):
             return built_in_cmds[cmd_name](cmd_args)
         # Wait for a kill signal
         signal.signal(signal.SIGINT, handler_kill)
-        # Written in beautiful sentences to run the command
         # Spawn a child process
         if platform.system() != "Windows":
             sh = subprocess.Popen(cmd_tokens[0])
