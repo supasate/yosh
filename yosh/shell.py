@@ -32,8 +32,10 @@ def execute(cmd_tokens):
     if cmd_name in built_in_cmds:
         return built_in_cmds[cmd_name](cmd_args)
     global sh
+    # Wait for a kill signal
     signal.signal(signal.SIGINT,handler_kill)
-    # Written in beautiful sentences to run the command,modifed by Ted
+    # Written in beautiful sentences to run the command
+    # Spawn a child process
     sh = subprocess.Popen(cmd_tokens)
     # Parent process wait for child process
     sh.communicate()
@@ -46,7 +48,7 @@ def shell_loop():
 
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
-        # Modifed by Ted,make it more looks like bash command prompt
+        # Make it more looks like bash command prompt
         if os.getcwd() == os.getenv('HOME'):
            dir = "~"
         else:
@@ -57,7 +59,7 @@ def shell_loop():
            sys.stdout.write('[root@'+socket.gethostname()+' '+dir+']# ')
         sys.stdout.flush()
 
-        # Modifed by Ted,do not receive Ctrl signal
+        # Do not receive Ctrl signal
         signal.signal(signal.SIGTSTP, signal.SIG_IGN)
         signal.signal(signal.SIGINT,signal.SIG_IGN)  
         #The bugs with receiving wrong command had fixed by Ted
