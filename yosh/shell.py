@@ -65,18 +65,18 @@ def shell_loop():
            # Read command input
            cmd = sys.stdin.readline()
         except KeyboardInterrupt,e:
-           print e
+           print (e)
         try:
            # Tokenize the command input
            cmd_tokens = tokenize(cmd)
         except:
-           print "Error when receiving the command"
+           print ("Error when receiving the command")
         # Fix a bug with inputing nothing
         try:
            # Execute the command and retrieve new status
            status = execute(cmd_tokens)
         except OSError,e:
-              print e
+              print (e)
 
 
 # Register a built-in function to built-in command hash map
