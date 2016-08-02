@@ -40,11 +40,27 @@ def execute(cmd_tokens):
         signal.signal(signal.SIGINT, handler_kill)
         # Spawn a child process
         if platform.system() != "Windows":
-            # Unix support
-            p = subprocess.Popen(cmd_tokens)
-            # Parent process read data from child process
-            # and wait for child process to exit
-            p.communicate()
+            found = 0
+            for i in os.getenv("PATH").split(":"):
+                if os.path.exists(i + "/" + cmd_name):
+                    # Fix the cmd_tokens
+                    p = subprocess.Popen(cmd_tokens)
+                    # Parent process read data from child process
+                    # and wait for child process to exit
+                    p.communicate()
+                    found = 1
+                    break
+            if found == 0:
+                for i in os.getenv("PATH").split(":"):
+                    for root, dirs, files in os.walk(i):
+                        for f in files:
+                            if f.find(cmd_tokens[0]) != -1:
+                                print "Do you mean: " + f
+                                found = 1
+                                break
+            if found == 0:
+                print "File Not Found"
+
         else:
             # Windows support
             command = ""
