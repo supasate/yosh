@@ -8,6 +8,8 @@
 * Fix command arguments are not passed to child process (Supasate Choochaisri)
 * Add travis build to check PEP8 (Supasate Choochaisri)
 * Add build badge (Supasate Choochaisri)
+* Auto find the command if the command does not exit (Yuliang Tan)
+* Set an environment variable if a token has a `=` sign (Yuliang Tan)
 
 2016-07-08, Version 0.1.0
 =========================

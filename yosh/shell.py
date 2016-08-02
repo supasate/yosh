@@ -16,8 +16,19 @@ built_in_cmds = {}
 def tokenize(string):
     token = shlex.split(string)
     for i, el in enumerate(token):
+        # Find the `=` sign
+        if el.find('=') != -1:
+            if int(el.find('=')) > 0:
+               if int(el.find('=')) != len(token[i]):
+                   if token[i][int(el.find('='))-1] != "=":
+                       if token[i][int(el.find('='))+1] != "=":
+                            token.append(str(token[i]))
+                            token[i]="export"
+                            break
+        # Find the dollar sign
         if el.startswith('$'):
-            token[i] = os.getenv(token[i][1:])
+            token[i] = str(os.getenv(token[i][1:]))
+            break
     return token
 
 
@@ -41,6 +52,7 @@ def execute(cmd_tokens):
         # Spawn a child process
         if platform.system() != "Windows":
             found = 0
+            # Auto find the command
             for i in os.getenv("PATH").split(":"):
                 if os.path.exists(i + "/" + cmd_name):
                     # Fix the cmd_tokens
