@@ -26,9 +26,45 @@ def tokenize(string):
                             token[i] = "export"
                             break
         # Find the dollar sign
-        elif el.startswith('$'):
-            token[i] = str(os.getenv(token[i][1:]))
+        if el.startswith('$'):
+            if int(el.find('/')) != -1:
+                strf = str(token[i][1:int(el.find('/'))])
+                token[i] = str(os.getenv(token[i][1:int(el.find('/'))])) + str(
+                               token[i][int(el.find('/')):len(token[i])])
+            # Windows Support
+            elif int(el.find('\\')) != -1:
+                strf = str(token[i][1:int(el.find('\\'))])
+                token[i] = str(os.getenv(token[i][1:int(el.find('\\'))])) + str(
+                               token[i][int(el.find('\\')):len(token[i])])
+            else:
+                token[i] = str(os.getenv(token[i][1:]))
             break
+        # `*` sign does not support Windows
+        if platform.system() == "Windows":
+            break
+        # Find the `*` sign
+        if int(el.find("*")) != -1:
+            if int(el.find("/")) == -1:
+               for files in os.listdir(os.getcwd()):
+                   if int(files.find(el.strip("./*"))) != -1:
+                       token[i] = os.getcwd() + "/" + files
+                       break
+            elif int(el.find("./")) != -1:
+                for files in os.listdir(os.getcwd()):
+                    if int(files.find(el.strip("./*"))) != -1:
+                        token[i] = os.getcwd() + "/" + files
+                        break
+            else:
+                found = 0
+                for files in os.listdir(token[i][0:int(el.rfind('/'))]):
+                    if found == 1:
+                        break
+                    if int(files.find(el.strip(token[i][0:int(
+                           el.rfind('/'))]+"*"))) != -1:
+                        token[i] = "/" + el.strip(token[i][int(
+                                            el.rfind('/')+1):len(el)]+"*") + "/" +files
+                        found = 1
+                        break
     return token
 
 
@@ -90,12 +126,11 @@ def execute(cmd_tokens):
                         break
             if found == 0:
                 for i in os.getenv("PATH").split(":"):
-                    for root, dirs, files in os.walk(i):
-                        for f in files:
-                            if f.find(cmd_tokens[0]) != -1:
-                                print "Do you mean: " + f
-                                found = 1
-                                break
+                    for files in os.listdir(i):
+                        if files.find(cmd_tokens[0]) != -1:
+                            print "Do you mean: " + files
+                            found = 1
+                            break
             if found == 0:
                 print "File Not Found"
 
@@ -111,7 +146,7 @@ def execute(cmd_tokens):
 
 def shell_loop():
     status = SHELL_STATUS_RUN
-
+    his = open(os.getenv('HOME') + "/.shistory", "a")
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
         if platform.system() != "Windows":
@@ -148,6 +183,7 @@ def shell_loop():
         try:
             # Tokenize the command input
             cmd_tokens = tokenize(cmd)
+            his.write(cmd)
         except:
             print("Error when receiving the command")
         # Fix a bug with inputing nothing
