@@ -20,8 +20,8 @@ def tokenize(string):
         if el.find('=') != -1:
             if int(el.find('=')) > 0:
                 if int(el.find('=')) != len(token[i]):
-                    if token[i][int(el.find('='))-1] != "=":
-                        if token[i][int(el.find('='))+1] != "=":
+                    if token[i][int(el.find('=')) - 1] != "=":
+                        if token[i][int(el.find('=')) + 1] != "=":
                             token.append(str(token[i]))
                             token[i] = "export"
                             break
@@ -30,12 +30,12 @@ def tokenize(string):
             if int(el.find('/')) != -1:
                 strf = str(token[i][1:int(el.find('/'))])
                 token[i] = str(os.getenv(token[i][1:int(el.find('/'))])) + str(
-                               token[i][int(el.find('/')):len(token[i])])
+                    token[i][int(el.find('/')):len(token[i])])
             # Windows Support
             elif int(el.find('\\')) != -1:
                 strf = str(token[i][1:int(el.find('\\'))])
-                token[i] = str(os.getenv(token[i][1:int(el.find('\\'))])) + str(
-                               token[i][int(el.find('\\')):len(token[i])])
+                token[i] = str(os.getenv(token[i][1:int(el.find('\\'))])) + \
+                    str(token[i][int(el.find('\\')):len(token[i])])
             else:
                 token[i] = str(os.getenv(token[i][1:]))
             break
@@ -45,10 +45,10 @@ def tokenize(string):
         # Find the `*` sign
         if int(el.find("*")) != -1:
             if int(el.find("/")) == -1:
-               for files in os.listdir(os.getcwd()):
-                   if int(files.find(el.strip("./*"))) != -1:
-                       token[i] = os.getcwd() + "/" + files
-                       break
+                for files in os.listdir(os.getcwd()):
+                    if int(files.find(el.strip("./*"))) != -1:
+                        token[i] = os.getcwd() + "/" + files
+                        break
             elif int(el.find("./")) != -1:
                 for files in os.listdir(os.getcwd()):
                     if int(files.find(el.strip("./*"))) != -1:
@@ -60,9 +60,9 @@ def tokenize(string):
                     if found == 1:
                         break
                     if int(files.find(el.strip(token[i][0:int(
-                           el.rfind('/'))]+"*"))) != -1:
+                           el.rfind('/'))] + "*"))) != -1:
                         token[i] = "/" + el.strip(token[i][int(
-                                            el.rfind('/')+1):len(el)]+"*") + "/" +files
+                            el.rfind('/') + 1):len(el)] + "*") + "/" + files
                         found = 1
                         break
     return token
@@ -96,7 +96,7 @@ def execute(cmd_tokens):
                     for a, el in enumerate(cmd_tokens):
                         # Find the '>' and '>>' sign
                         if el == ">" or el == ">>":
-                            with open(cmd_tokens[a+1], "a") as f:
+                            with open(cmd_tokens[a + 1], "a") as f:
                                 f.flush()
                                 # Fix the cmd_tokens
                                 p = subprocess.Popen(cmd_tokens[0:a], stdout=f)
@@ -105,7 +105,7 @@ def execute(cmd_tokens):
                                 break
                         # Find the '<' and '<<' sign
                         elif el == "<" or el == "<<":
-                            with open(cmd_tokens[a+1], "r+") as g:
+                            with open(cmd_tokens[a + 1], "r+") as g:
                                 p = subprocess.Popen(cmd_tokens[0:a], stdin=g)
                                 std = 1
                                 found = 1
@@ -206,6 +206,7 @@ def init():
     register_command("exit", exit)
     register_command("getenv", getenv)
     register_command("export", export)
+    register_command("history", history)
 
 
 def main():

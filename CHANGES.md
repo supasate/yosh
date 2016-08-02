@@ -13,6 +13,7 @@
 * Redirect Output with subprocess if a token has a `>` sign (Yuliang Tan)
 * Run the command at the background if a token has a `&` sign (Yuliang Tan)
 * Auto find file if a token has a `*` sign (Yuliang Tan)
+* Add `history` built-in command (Yuliang Tan)
 
 2016-07-08, Version 0.1.0
 =========================
