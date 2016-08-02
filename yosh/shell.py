@@ -19,14 +19,14 @@ def tokenize(string):
         # Find the `=` sign
         if el.find('=') != -1:
             if int(el.find('=')) > 0:
-               if int(el.find('=')) != len(token[i]):
-                   if token[i][int(el.find('='))-1] != "=":
-                       if token[i][int(el.find('='))+1] != "=":
+                if int(el.find('=')) != len(token[i]):
+                    if token[i][int(el.find('='))-1] != "=":
+                        if token[i][int(el.find('='))+1] != "=":
                             token.append(str(token[i]))
-                            token[i]="export"
+                            token[i] = "export"
                             break
         # Find the dollar sign
-        if el.startswith('$'):
+        elif el.startswith('$'):
             token[i] = str(os.getenv(token[i][1:]))
             break
     return token
@@ -52,16 +52,26 @@ def execute(cmd_tokens):
         # Spawn a child process
         if platform.system() != "Windows":
             found = 0
+            std = 0
             # Auto find the command
             for i in os.getenv("PATH").split(":"):
                 if os.path.exists(i + "/" + cmd_name):
-                    # Fix the cmd_tokens
-                    p = subprocess.Popen(cmd_tokens)
-                    # Parent process read data from child process
-                    # and wait for child process to exit
-                    p.communicate()
-                    found = 1
-                    break
+                    for a, el in enumerate(cmd_tokens):
+                        if el == ">":
+                            with open(cmd_tokens[a+1], "a") as f:
+                                f.flush()
+                                # Fix the cmd_tokens
+                                p = subprocess.Popen(cmd_tokens[0:a], stdout=f)
+                                std = 1
+                                found = 1
+                                break
+                    if std == 0:
+                        p = subprocess.Popen(cmd_tokens)
+                        # Parent process read data from child process
+                        # and wait for child process to exit
+                        p.communicate()
+                        found = 1
+                        break
             if found == 0:
                 for i in os.getenv("PATH").split(":"):
                     for root, dirs, files in os.walk(i):
