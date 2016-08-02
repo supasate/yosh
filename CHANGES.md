@@ -11,6 +11,7 @@
 * Auto find the command if the command does not exit (Yuliang Tan)
 * Set an environment variable if a token has a `=` sign (Yuliang Tan)
 * Redirect Output with subprocess if a token has a `>` sign (Yuliang Tan)
+* Run the command at the background if a token has a `&` sign (Yuliang Tan)
 
 2016-07-08, Version 0.1.0
 =========================

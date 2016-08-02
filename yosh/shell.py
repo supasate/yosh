@@ -53,11 +53,13 @@ def execute(cmd_tokens):
         if platform.system() != "Windows":
             found = 0
             std = 0
+            waitpid = 0
             # Auto find the command
             for i in os.getenv("PATH").split(":"):
                 if os.path.exists(i + "/" + cmd_name):
                     for a, el in enumerate(cmd_tokens):
-                        if el == ">":
+                        # Find the '>' and '>>' sign
+                        if el == ">" or el == ">>":
                             with open(cmd_tokens[a+1], "a") as f:
                                 f.flush()
                                 # Fix the cmd_tokens
@@ -65,11 +67,25 @@ def execute(cmd_tokens):
                                 std = 1
                                 found = 1
                                 break
+                        # Find the '<' and '<<' sign
+                        elif el == "<" or el == "<<":
+                            with open(cmd_tokens[a+1], "r+") as g:
+                                p = subprocess.Popen(cmd_tokens[0:a], stdin=g)
+                                std = 1
+                                found = 1
+                                break
+                        # Find the '&' sign,and run in the background
+                        elif el == "&":
+                            p = subprocess.Popen(cmd_tokens,
+                                                 stdout=subprocess.PIPE)
+                            waitpid = 1
+                            break
                     if std == 0:
-                        p = subprocess.Popen(cmd_tokens)
-                        # Parent process read data from child process
-                        # and wait for child process to exit
-                        p.communicate()
+                        if waitpid == 0:
+                            p = subprocess.Popen(cmd_tokens)
+                            # Parent process read data from child process
+                            # and wait for child process to exit
+                            p.communicate()
                         found = 1
                         break
             if found == 0:
