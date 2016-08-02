@@ -12,8 +12,8 @@ def history(args):
         if count != 0:
             if len(lines) - count < i < len(lines):
                 output = str(i) + " " + el
-                print (output.strip())
+                print(output.strip())
         else:
             output = str(i) + " " + el
-            print (output.strip())
+            print(output.strip())
     return SHELL_STATUS_RUN
