@@ -75,17 +75,22 @@ def display_cmd_prompt():
     sys.stdout.flush()
 
 
+def ignore_signals():
+    # Ignore Ctrl-Z stop signal
+    if platform.system() != "Windows":
+        signal.signal(signal.SIGTSTP, signal.SIG_IGN)
+    # Ignore Ctrl-C interrupt signal
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
 def shell_loop():
     status = SHELL_STATUS_RUN
 
     while status == SHELL_STATUS_RUN:
         display_cmd_prompt()
 
-        # Ignore Ctrl-Z stop signal
-        if platform.system() != "Windows":
-            signal.signal(signal.SIGTSTP, signal.SIG_IGN)
-        # Ignore Ctrl-C interrupt signal
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        # Ignore Ctrl-Z and Ctrl-C signals
+        ignore_signals()
 
         try:
             # Read command input
