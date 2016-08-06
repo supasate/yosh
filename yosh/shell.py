@@ -79,9 +79,11 @@ def shell_loop():
     while status == SHELL_STATUS_RUN:
         display_cmd_prompt()
 
-        # Do not receive Ctrl signal
+        # Ignore Ctrl-Z stop signal
         if platform.system() != "Windows":
             signal.signal(signal.SIGTSTP, signal.SIG_IGN)
+
+        # Ignore Ctrl-C interrupt signal
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         try:
