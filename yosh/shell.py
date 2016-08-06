@@ -54,30 +54,30 @@ def execute(cmd_tokens):
     # Return status indicating to wait for next command in shell_loop
     return SHELL_STATUS_RUN
 
+# Display a command prompt as `[<user>@<hostname> <dir>]$ `
+def display_cmd_prompt():
+    # Get user and hostname
+    user = getpass.getuser()
+    hostname = socket.gethostname()
+
+    # Get base directory (last part of the curent working directory path)
+    cwd = os.getcwd()
+    base_dir = os.path.basename(cwd)
+
+    # Use ~ instead if a user is at his/her home directory
+    home_dir = os.path.expanduser('~')
+    if cwd == home_dir:
+        base_dir = '~'
+
+    # Print out to console
+    sys.stdout.write("[%s@%s %s]$ " % (user, hostname, base_dir))
+    sys.stdout.flush()
 
 def shell_loop():
     status = SHELL_STATUS_RUN
 
     while status == SHELL_STATUS_RUN:
-        # Display a command prompt
-        if platform.system() != "Windows":
-            if os.getcwd() == os.getenv('HOME'):
-                dir = "~"
-            else:
-                dir = os.getcwd().split('/')[-1]
-            if os.geteuid() != 0:
-                sys.stdout.write(
-                    '[' + getpass.getuser() + '@' +
-                    socket.gethostname().split('.')[0] +
-                    ' ' + dir + ']$ ')
-            else:
-                sys.stdout.write(
-                    '[root@' + socket.gethostname().split('.')[0] +
-                    ' ' + dir + ']# ')
-        else:
-            # Windows support
-            sys.stdout.write(os.getcwd() + "> ")
-        sys.stdout.flush()
+        display_cmd_prompt()
 
         # Do not receive Ctrl signal
         if platform.system() != "Windows":
