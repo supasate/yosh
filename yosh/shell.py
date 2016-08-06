@@ -14,11 +14,18 @@ built_in_cmds = {}
 
 
 def tokenize(string):
-    token = shlex.split(string)
-    for i, el in enumerate(token):
-        if el.startswith('$'):
-            token[i] = os.getenv(token[i][1:])
-    return token
+    return shlex.split(string)
+
+
+def preprocess(tokens):
+    processed_token = []
+    for token in tokens:
+        # Convert $-prefixed token to value of an environment variable
+        if token.startswith('$'):
+            processed_token.append(os.getenv(token[1:]))
+        else:
+            processed_token.append(token)
+    return processed_token
 
 
 def handler_kill(signum, frame):
@@ -97,6 +104,9 @@ def shell_loop():
             cmd = sys.stdin.readline()
             # Tokenize the command input
             cmd_tokens = tokenize(cmd)
+            # Preprocess special tokens
+            # (e.g. convert $<env> into environment value)
+            cmd_tokens = preprocess(cmd_tokens)
             # Execute the command and retrieve new status
             status = execute(cmd_tokens)
         except:
