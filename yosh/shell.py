@@ -16,8 +16,55 @@ built_in_cmds = {}
 def tokenize(string):
     token = shlex.split(string)
     for i, el in enumerate(token):
+        # Find the `=` sign
+        if el.find('=') != -1:
+            if el.find('=') > 0:
+                if el.find('=') != len(el):
+                    if token[i][el.find('=') - 1] != "=":
+                        if token[i][el.find('=') + 1] != "=":
+                            token.append(str(token[i]))
+                            token[i] = "export"
+                            break
+        # Find the dollar sign
         if el.startswith('$'):
-            token[i] = os.getenv(token[i][1:])
+            if el.find('/') != -1:
+                strf = str(token[i][1:el.find('/')])
+                token[i] = str(os.getenv(token[i][1:el.find('/')])) + str(
+                    token[i][el.find('/'):len(token[i])])
+            # Windows Support
+            elif el.find('\\') != -1:
+                strf = str(token[i][1:el.find('\\')])
+                token[i] = str(os.getenv(token[i][1:el.find('\\')])) + \
+                    str(token[i][el.find('\\'):len(token[i])])
+            else:
+                token[i] = str(os.getenv(token[i][1:]))
+            break
+        # `*` sign does not support Windows
+        if platform.system() == "Windows":
+            break
+        # Find the `*` sign
+        if el.find("*") != -1:
+            if el.find("/") == -1:
+                for files in os.listdir(os.getcwd()):
+                    if files.find(el.strip("./*")) != -1:
+                        token[i] = os.getcwd() + "/" + files
+                        break
+            elif el.find("./") != -1:
+                for files in os.listdir(os.getcwd()):
+                    if files.find(el.strip("./*")) != -1:
+                        token[i] = os.getcwd() + "/" + files
+                        break
+            else:
+                found = False
+                for files in os.listdir(token[i][0:el.rfind('/')]):
+                    if found:
+                        break
+                    if files.find(el.strip(
+                                  token[i][0:el.rfind('/')] + "*")) != -1:
+                        token[i] = "/" + el.strip(token[i][
+                            el.rfind('/') + 1:len(el)] + "*") + "/" + files
+                        found = True
+                        break
     return token
 
 
@@ -40,11 +87,54 @@ def execute(cmd_tokens):
         signal.signal(signal.SIGINT, handler_kill)
         # Spawn a child process
         if platform.system() != "Windows":
-            # Unix support
-            p = subprocess.Popen(cmd_tokens)
-            # Parent process read data from child process
-            # and wait for child process to exit
-            p.communicate()
+            found = False
+            # Std including "stdin" and "stdout"
+            std = False
+            waitpid = False
+            # Auto find the command
+            for path in os.getenv("PATH").split(":"):
+                if os.path.exists(path + "/" + cmd_name):
+                    for a, el in enumerate(cmd_tokens):
+                        # Find the '>'
+                        if el == ">":
+                            with open(cmd_tokens[a + 1], "a") as f:
+                                f.flush()
+                                # Fix the cmd_tokens
+                                p = subprocess.Popen(cmd_tokens[0:a], stdout=f)
+                                std = True
+                                found = True
+                                break
+                        # Find the '<'
+                        elif el == "<":
+                            with open(cmd_tokens[a + 1], "r+") as g:
+                                p = subprocess.Popen(cmd_tokens[0:a], stdin=g)
+                                std = True
+                                found = True
+                                break
+                        # Find the '&' sign,and run in the background
+                        elif el == "&":
+                            p = subprocess.Popen(cmd_tokens,
+                                                 stdout=subprocess.PIPE)
+                            waitpid = True
+                            break
+                    if not std:
+                        if not waitpid:
+                            p = subprocess.Popen(cmd_tokens)
+                            # Parent process read data from child process
+                            # and wait for child process to exit
+                            p.communicate()
+                        found = True
+                        break
+            if not found:
+                for i in os.getenv("PATH").split(":"):
+                    for files in os.listdir(i):
+                        if files.find(cmd_tokens[0]) != -1:
+                            print "Do you mean: " + files
+                            found = False
+                            break
+            if not found:
+                print "File Not Found"
+
         else:
             # Windows support
             command = ""
@@ -57,7 +147,6 @@ def execute(cmd_tokens):
 
 def shell_loop():
     status = SHELL_STATUS_RUN
-
     while status == SHELL_STATUS_RUN:
         # Display a command prompt
         if platform.system() != "Windows":
@@ -94,6 +183,8 @@ def shell_loop():
         try:
             # Tokenize the command input
             cmd_tokens = tokenize(cmd)
+            with open(os.getenv('HOME') + "/.yosh_history", "a") as his_file:
+                his_file.write(cmd)
         except:
             print("Error when receiving the command")
         # Fix a bug with inputing nothing
@@ -116,6 +207,7 @@ def init():
     register_command("exit", exit)
     register_command("getenv", getenv)
     register_command("export", export)
+    register_command("history", history)
 
 
 def main():
