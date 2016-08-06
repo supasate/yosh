@@ -1,12 +1,12 @@
 import os
+import sys
 from yosh.constants import *
 
 
 def history(args):
-    history_path = os.getenv('HOME') + '/.yosh_history'
-
-    with open(history_path) as history_file:
+    with open(HISTORY_PATH, 'r') as history_file:
         lines = history_file.readlines()
+
         # default limit is whole file
         limit = len(lines)
 
@@ -18,6 +18,7 @@ def history(args):
 
         for line_num, line in enumerate(lines):
             if line_num >= start:
-                output = str(line_num + 1) + " " + line
-                print(output.strip())
+                sys.stdout.write('%d %s' % (line_num + 1, line))
+        sys.stdout.flush()
+
     return SHELL_STATUS_RUN

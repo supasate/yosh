@@ -33,6 +33,9 @@ def handler_kill(signum, frame):
 
 
 def execute(cmd_tokens):
+    with open(HISTORY_PATH, 'a') as history_file:
+        history_file.write(' '.join(cmd_tokens) + os.linesep)
+
     if cmd_tokens:
         # Extract command name and arguments from tokens
         cmd_name = cmd_tokens[0]
@@ -123,8 +126,9 @@ def register_command(name, func):
 def init():
     register_command("cd", cd)
     register_command("exit", exit)
-    register_command("getenv", getenv)
     register_command("export", export)
+    register_command("getenv", getenv)
+    register_command("history", history)
 
 
 def main():
