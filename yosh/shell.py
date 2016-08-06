@@ -54,6 +54,7 @@ def execute(cmd_tokens):
     # Return status indicating to wait for next command in shell_loop
     return SHELL_STATUS_RUN
 
+
 # Display a command prompt as `[<user>@<hostname> <dir>]$ `
 def display_cmd_prompt():
     # Get user and hostname
@@ -73,6 +74,7 @@ def display_cmd_prompt():
     sys.stdout.write("[%s@%s %s]$ " % (user, hostname, base_dir))
     sys.stdout.flush()
 
+
 def shell_loop():
     status = SHELL_STATUS_RUN
 
@@ -82,27 +84,17 @@ def shell_loop():
         # Ignore Ctrl-Z stop signal
         if platform.system() != "Windows":
             signal.signal(signal.SIGTSTP, signal.SIG_IGN)
-
         # Ignore Ctrl-C interrupt signal
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         try:
             # Read command input
             cmd = sys.stdin.readline()
-        except KeyboardInterrupt:
-            _, err, _ = sys.exc_info()
-            print(err)
-
-        try:
             # Tokenize the command input
             cmd_tokens = tokenize(cmd)
-        except:
-            print("Error when receiving the command")
-        # Fix a bug with inputing nothing
-        try:
             # Execute the command and retrieve new status
             status = execute(cmd_tokens)
-        except OSError:
+        except:
             _, err, _ = sys.exc_info()
             print(err)
 
