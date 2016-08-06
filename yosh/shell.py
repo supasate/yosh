@@ -17,14 +17,13 @@ def tokenize(string):
     token = shlex.split(string)
     for i, el in enumerate(token):
         # Find the `=` sign
-        if el.find('=') != -1:
-            if el.find('=') > 0:
-                if el.find('=') != len(el):
-                    if token[i][el.find('=') - 1] != "=":
-                        if token[i][el.find('=') + 1] != "=":
-                            token.append(str(token[i]))
-                            token[i] = "export"
-                            break
+        equal_pos = el.find('=')
+        if (equal_pos > 0 and
+                el[equal_pos - 1] != '=' and
+                el[equal_pos + 1] != '='):
+            token.append(str(token[i]))
+            token[i] = "export"
+            break
         # Find the dollar sign
         if el.startswith('$'):
             if el.find('/') != -1:
